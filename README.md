@@ -49,8 +49,27 @@ If you prefer not to use environment variables, you can paste your API keys dire
 
 ---
 
-### Step 3: Run the Watchdog for 24/7 Uptime
-The watchdog script (`keep_active.sh`) will automatically initialize a Python virtual environment, install the dependencies, download the Daytona CLI, start the server, and monitor port `7860`. If the server crashes, the watchdog restarts it automatically.
+### Step 3: Setup Virtual Environment & Install Dependencies (Manual Installation)
+If you want to configure your Python environment and packages manually instead of letting the startup scripts do it:
+
+1. **Install `python3-venv`** (required for creating sandboxed virtual environments on Debian/Ubuntu):
+   ```bash
+   sudo apt update && sudo apt install -y python3-venv
+   ```
+2. **Create and activate the virtual environment** in your repository folder:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. **Install all required dependencies** inside the virtual environment:
+   ```bash
+   pip install --no-cache-dir fastapi uvicorn requests pyngrok
+   ```
+
+---
+
+### Step 4: Run the Watchdog for 24/7 Uptime
+The watchdog script (`keep_active.sh`) will automatically initialize a Python virtual environment (if you skipped Step 3), verify dependency installations, download the Daytona CLI locally, start the uvicorn server, and monitor port `7860`. If the server crashes, the watchdog restarts it automatically.
 
 1. **Clear any existing processes using port 7860**:
    ```bash
@@ -64,7 +83,7 @@ The watchdog script (`keep_active.sh`) will automatically initialize a Python vi
 
 ---
 
-### Step 4: Verify Status & Retrieve Ngrok Link
+### Step 5: Verify Status & Retrieve Ngrok Link
 * Check the watchdog loop logs:
   ```bash
   cat watchdog.log
