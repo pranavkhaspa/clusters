@@ -350,19 +350,34 @@ def startup_event():
 
     # Start ngrok tunnel if token is available
     ngrok_token = os.environ.get("NGROK_AUTHTOKEN", "2niO6DxaVsKxRLbZVEPGDXNDu7P_4mvUjrqeMs53US1B9pj73")
+
     if ngrok_token:
         try:
-            from pyngrok import ngrok
+            from pyngrok import ngrok, conf
+
+            logger.info("Starting ngrok tunnel...")
+
             ngrok.set_auth_token(ngrok_token)
-            port = int(os.environ.get("PORT", 7860))
-            public_url = ngrok.connect(port)
-            logger.info("==========================================================")
-            logger.info(f"   NGROK TUNNEL ESTABLISHED: {public_url}                  ")
-            logger.info("==========================================================")
+
+            # Kill old tunnels so restart doesn't fail
+            ngrok.kill()
+
+            # HF exposes your app on 7860 through nginx
+            public_url = ngrok.connect(
+                addr=7860,
+                proto="http",
+                bind_tls=True,
+            )
+
+            logger.info("=" * 58)
+            logger.info(f" NGROK URL: {public_url}")
+            logger.info("=" * 58)
+
             with cache_lock:
                 global_stats["ngrok_url"] = str(public_url)
+
         except Exception as e:
-            logger.error(f"Failed to start ngrok tunnel: {e}")
+            logger.exception("Unable to start ngrok")
 
 # ----------------- API Endpoints -----------------
 
