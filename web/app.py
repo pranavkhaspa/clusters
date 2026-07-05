@@ -349,35 +349,45 @@ def startup_event():
     t_cron.start()
 
     # Start ngrok tunnel if token is available
-    ngrok_token = os.environ.get("NGROK_AUTHTOKEN", "2niO6DxaVsKxRLbZVEPGDXNDu7P_4mvUjrqeMs53US1B9pj73")
+       # ------------------------------------------------------------
+    # Optional ngrok tunnel (for convenience only)
+    # HF Space itself is still the primary endpoint.
+    # ------------------------------------------------------------
+    ngrok_token = os.environ.get("NGROK_AUTHTOKEN")
 
     if ngrok_token:
         try:
-            from pyngrok import ngrok, conf
+            from pyngrok import ngrok
 
             logger.info("Starting ngrok tunnel...")
 
             ngrok.set_auth_token(ngrok_token)
 
-            # Kill old tunnels so restart doesn't fail
+            # Kill any old tunnels
             ngrok.kill()
 
-            # HF exposes your app on 7860 through nginx
-            public_url = ngrok.connect(
-                addr=7860,
+            # Detect where uvicorn is actually listening.
+            # HF Spaces reverse-proxies to 7860, but locally your app runs on 8000.
+            local_port = int(os.environ.get("PORT", 8000))
+
+            tunnel = ngrok.connect(
+                addr=local_port,
                 proto="http",
                 bind_tls=True,
             )
 
-            logger.info("=" * 58)
-            logger.info(f" NGROK URL: {public_url}")
-            logger.info("=" * 58)
+            public_url = tunnel.public_url
+
+            logger.info("=" * 60)
+            logger.info("NGROK TUNNEL READY")
+            logger.info(public_url)
+            logger.info("=" * 60)
 
             with cache_lock:
-                global_stats["ngrok_url"] = str(public_url)
+                global_stats["ngrok_url"] = public_url
 
-        except Exception as e:
-            logger.exception("Unable to start ngrok")
+        except Exception:
+            logger.exception("Failed to start ngrok tunnel")
 
 # ----------------- API Endpoints -----------------
 
