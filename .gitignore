@@ -1,0 +1,32 @@
+# Python Virtual Environment
+venv/
+.venv/
+env/
+*.venv
+
+# Daytona local binary
+bin/daytona
+
+# Sensitive configs containing API keys
+configs/
+/configs
+
+# Sensitive connection tokens & connection mappings
+connections.json
+connections/
+/connections
+
+# Logging and temp files
+*.log
+controller.log
+web/controller.log
+.idea/
+.vscode/
+
+# Python Cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
