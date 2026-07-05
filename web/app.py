@@ -15,7 +15,7 @@ from pydantic import BaseModel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Base paths
-WORKSPACE_DIR = "/home/pro/daytona"
+WORKSPACE_DIR = os.environ.get("WORKSPACE_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 CONFIGS_DIR = os.path.join(WORKSPACE_DIR, "configs")
 CONNECTIONS_DIR = os.path.join(WORKSPACE_DIR, "connections")
 CONNECTIONS_JSON = os.path.join(WORKSPACE_DIR, "connections.json")

@@ -10,7 +10,7 @@ import argparse
 import requests
 
 # Base paths
-WORKSPACE_DIR = "/home/pro/daytona"
+WORKSPACE_DIR = os.environ.get("WORKSPACE_DIR", os.path.dirname(os.path.abspath(__file__)))
 CONFIGS_DIR = os.path.join(WORKSPACE_DIR, "configs")
 CONNECTIONS_DIR = os.path.join(WORKSPACE_DIR, "connections")
 CONNECTIONS_JSON = os.path.join(WORKSPACE_DIR, "connections.json")
