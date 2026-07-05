@@ -30,3 +30,5 @@ __pycache__/
 *.pyd
 .pytest_cache/
 .ipynb_checkpoints/
+Dockerfile.node
+

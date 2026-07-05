@@ -116,14 +116,26 @@ def get_node_sandbox(node_name, api_key):
 
 def create_sandbox(node_name):
     """
-    Creates a sandbox for the node using the Daytona CLI.
-    We do NOT specify resources, allowing the backend to allocate optimal resources based on the default snapshot.
+    Creates a sandbox for the node using the Daytona CLI with custom resources.
+    Uses Dockerfile.node to allow resource override.
     """
-    logger.info(f"Creating sandbox {node_name}...")
+    logger.info(f"Creating sandbox {node_name} with 8GB RAM, 4 vCPUs...")
+    node_dockerfile = os.path.join(WORKSPACE_DIR, "Dockerfile.node")
+    try:
+        with open(node_dockerfile, "w") as f:
+            f.write("FROM daytonaio/sandbox:0.8.0\n")
+    except Exception as e:
+        logger.error(f"Failed to write Dockerfile.node: {e}")
+        return False
+
     env = get_env_for_node(node_name)
     cmd = [
         DAYTONA_BIN, "create",
         "--name", node_name,
+        "--dockerfile", node_dockerfile,
+        "--cpu", "4",
+        "--memory", "8",
+        "--disk", "10",
         "--auto-stop", "43200",     # 30 days
         "--auto-archive", "10080",  # 7 days
         "--auto-delete", "-1"       # Disabled

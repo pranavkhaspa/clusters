@@ -123,15 +123,26 @@ def get_sandbox_details(node_name, api_key):
 def bootstrap_all():
     logger.info("Initializing configurations...")
     os.makedirs(CONFIGS_DIR, exist_ok=True)
+    
+    # Write a base Dockerfile for the sandboxes to request custom resources
+    node_dockerfile = os.path.join(WORKSPACE_DIR, "Dockerfile.node")
+    try:
+        with open(node_dockerfile, "w") as f:
+            f.write("FROM daytonaio/sandbox:0.8.0\n")
+    except Exception as e:
+        logger.error(f"Failed to write Dockerfile.node: {e}")
+        
     for node_name, api_key in NODE_KEYS.items():
         write_node_config(node_name, api_key)
         # Check if sandbox exists
         sandbox = get_sandbox_details(node_name, api_key)
         if not sandbox:
-            logger.info(f"Sandbox {node_name} not found. Creating...")
+            logger.info(f"Sandbox {node_name} not found. Creating with 8GB RAM, 4 vCPUs...")
             env = get_env_for_node(node_name)
             cmd = [
                 DAYTONA_BIN, "create", "--name", node_name,
+                "--dockerfile", node_dockerfile,
+                "--cpu", "4", "--memory", "8", "--disk", "10",
                 "--auto-stop", "43200", "--auto-archive", "10080", "--auto-delete", "-1"
             ]
             subprocess.run(cmd, env=env, capture_output=True)
